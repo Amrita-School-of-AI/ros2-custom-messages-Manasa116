@@ -1,5 +1,4 @@
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <string>
 
@@ -16,11 +15,9 @@ public:
           battery_level_(100.0),
           mission_count_(0)
     {
-        // Create publisher
         publisher_ = this->create_publisher<ros2_custom_msgs::msg::RobotStatus>(
             "/robot_status", 10);
 
-        // Create timer (every 1000 ms)
         timer_ = this->create_wall_timer(
             1000ms,
             std::bind(&StatusPublisher::timer_callback, this));
@@ -36,16 +33,15 @@ private:
         message.is_active = true;
         message.mission_count = mission_count_;
 
-        publisher_->publish(message);
-
         RCLCPP_INFO(this->get_logger(),
-                    "Publishing: robot=%s | Battery=%.2f | Active=%s | Missions=%d",
+                    "Publishing: robot=%s, battery=%.1f, active=%s, missions=%d",
                     message.robot_name.c_str(),
                     message.battery_level,
                     message.is_active ? "true" : "false",
                     message.mission_count);
 
-        // Update values
+        publisher_->publish(message);
+
         battery_level_ -= 0.5;
         mission_count_++;
     }
